@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Bảng thông báo - Xã Phú Mỹ</title>
+
+<style>
+/* --- GIỮ NGUYÊN CSS TỐI ƯU CỦA BẠN --- */
+body { margin: 0; background: #050d1a; color: white; font-family: Arial, sans-serif; overflow: hidden; }
+#header { height: 70px; background: linear-gradient(to right, #b71c1c, #d32f2f); color: white; font-size: 24px; font-weight: bold; text-align: center; line-height: 70px; text-transform: uppercase; }
+#viewport { height: calc(100vh - 70px); overflow-y: auto; padding: 10px 15px; }
+#viewport::-webkit-scrollbar { width: 0px; background: transparent; }
+
+#controls { position: fixed; top: 15px; right: 15px; z-index: 999; }
+#controls button { padding: 8px 15px; cursor: pointer; font-weight: bold; border: none; border-radius: 4px; background: #fff; color: #b71c1c; font-size: 16px; }
+
+.section-header { margin-top: 30px; margin-bottom: 10px; padding: 12px; background: #002244; border-left: 8px solid #ffeb3b; font-size: 24px; font-weight: bold; color: #4fc3f7; text-transform: uppercase; }
+
+table { width: 100%; border-collapse: collapse; font-size: 24px; table-layout: fixed; background: rgba(0,0,0,0.2); margin-bottom: 30px; }
+th, td { border: 1px solid #444; padding: 15px 10px; vertical-align: middle; line-height: 1.4; word-wrap: break-word; }
+thead th { background: #0d47a1; color: #ffeb3b; text-align: center; position: sticky; top: -11px; z-index: 10; }
+
+/* Tỷ lệ cột bảng công việc */
+#table-jobs th:nth-child(1), #table-jobs td:nth-child(1) { width: 30%; text-align: justify; }
+#table-jobs th:nth-child(2), #table-jobs td:nth-child(2) { width: 6%; text-align: center; }
+#table-jobs th:nth-child(3), #table-jobs td:nth-child(3) { width: 10%; text-align: center; }
+#table-jobs th:nth-child(4), #table-jobs td:nth-child(4) { width: 8%; text-align: center; }
+#table-jobs th:nth-child(5), #table-jobs td:nth-child(5) { width: 12%; text-align: center; }
+#table-jobs th:nth-child(6), #table-jobs td:nth-child(6) { width: 6%; text-align: center; }
+#table-jobs th:nth-child(7), #table-jobs td:nth-child(7) { width: 11%; text-align: center; }
+#table-jobs th:nth-child(8), #table-jobs td:nth-child(8) { width: 8%; text-align: center; }
+
+/* Tỷ lệ cột bảng lịch họp */
+#table-meetings th:nth-child(1), #table-meetings td:nth-child(1) { width: 10%; text-align: center; color: #ffeb3b; font-weight: bold; }
+#table-meetings th:nth-child(2), #table-meetings td:nth-child(2) { width: 10%; text-align: center; color: #ff5252; font-weight: bold; }
+#table-meetings th:nth-child(3), #table-meetings td:nth-child(3) { width: 30%; text-align: justify; }
+#table-meetings th:nth-child(4), #table-meetings td:nth-child(4) { width: 15%; text-align: justify }
+
+/* Cột Thành phần tham dự - Tối ưu xuống dòng */
+#table-meetings th:nth-child(5), #table-meetings td:nth-child(5) { 
+    width: 20%; 
+    font-style: italic; 
+    text-align: left; 
+    white-space: normal; 
+    word-break: break-word; 
+    line-height: 1.2; 
+}
+
+.status-bad { background: #b71c1c; padding: 4px 8px; border-radius: 4px; font-weight: bold; display: inline-block; }
+.no-data { text-align: center; padding: 40px; color: #aaa; font-style: italic; font-size: 22px; }
+</style>
+</head>
+
+<body>
+
+<div id="header">BẢNG THEO DÕI CÔNG VIỆC VÀ LỊCH CÔNG TÁC</div>
+
+<div id="controls">
+    <button id="btnToggle" onclick="toggleScroll()">⏯ Dừng / Chạy</button>
+</div>
+
+<div id="viewport">
+    <div class="section-header">📋 THEO DÕI CÔNG VIỆC & VĂN BẢN</div>
+    <table id="table-jobs"><thead></thead><tbody></tbody></table>
+
+    <div class="section-header">📅 LỊCH HỌP HÔM NAY (<span id="today-date"></span>)</div>
+    <table id="table-meetings"><thead></thead><tbody></tbody></table>
+    <div style="height: 150px;"></div>
+</div>
+
+<script>
+const API_KEY = "AIzaSyDWQsIW0i67F2nVSEpMq3Rj_oT228rVsCU";
+const SHEET_ID = "15QTF-k5nHtDqyTJ5m_LwGxPjPq0XHTFq5KLOCG9IQIg";
+const SHEET_JOBS = "Bảng thông báo điện tử";
+const SHEET_MEETINGS = "Lịch họp 2026";
+
+let y = 0;
+let running = true;
+let isReloading = false;
+let timer = null;
+
+async function init() {
+    const now = new Date();
+    document.getElementById("today-date").textContent = now.toLocaleDateString('vi-VN');
+
+    try {
+        const [resJobs, resMeetings] = await Promise.all([
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_JOBS)}!A1:H100?key=${API_KEY}`),
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_MEETINGS)}!A1:F100?key=${API_KEY}`)
+        ]);
+
+        const dataJobs = await resJobs.json();
+        const dataMeetings = await resMeetings.json();
+
+        renderJobsTable(dataJobs.values);
+        renderTodayMeetings(dataMeetings.values);
+
+        setTimeout(startAutoScroll, 2000);
+    } catch (e) {
+        console.error("Lỗi:", e);
+    }
+}
+
+function renderJobsTable(rows) {
+    if (!rows || rows.length < 2) return;
+    const table = document.getElementById("table-jobs");
+    table.querySelector("thead").innerHTML = "<tr>" + rows[0].map(c => `<th>${c}</th>`).join('') + "</tr>";
+
+    let htmlBody = "";
+    const statusIdx = rows[0].findIndex(c => c.toLowerCase().includes("trạng thái"));
+    rows.slice(1).forEach(row => {
+        if(!row[0]) return;
+        htmlBody += "<tr>";
+        for(let i=0; i<rows[0].length; i++){
+            let cell = row[i] || "";
+            if(i === statusIdx && (cell.toLowerCase().includes("quá") || cell.toLowerCase().includes("trễ"))) {
+                cell = `<span class="status-bad">${cell}</span>`;
+            }
+            htmlBody += `<td>${cell}</td>`;
+        }
+        htmlBody += "</tr>";
+    });
+    table.querySelector("tbody").innerHTML = htmlBody;
+}
+
+function renderTodayMeetings(rows) {
+    if (!rows || rows.length < 4) return;
+    const table = document.getElementById("table-meetings");
+    table.querySelector("thead").innerHTML = "<tr>" + rows[2].map(c => `<th>${c}</th>`).join('') + "</tr>";
+
+    const now = new Date();
+    const todaySearch = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+    let htmlBody = "";
+    let lastDate = "";
+    let hasMeeting = false;
+
+    for (let i = 3; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length < 2) continue;
+        let dateCell = row[0] ? row[0].trim() : lastDate;
+        if (row[0]) lastDate = row[0].trim();
+
+        if (dateCell.includes(todaySearch)) {
+            hasMeeting = true;
+            htmlBody += "<tr><td>" + (row[0] || "") + "</td>";
+            
+            // Xử lý các cột dữ liệu (Giờ, Nội dung, Địa điểm, Thành phần)
+            for (let k = 1; k < 5; k++) {
+                let cellData = row[k] || "";
+                // Nếu là cột Thành phần tham dự (k=4), xử lý xuống dòng
+                if (k === 4) {
+                    cellData = cellData.replace(/\n/g, "<br>");
+                }
+                htmlBody += `<td>${cellData}</td>`;
+            }
+            htmlBody += "</tr>";
+        }
+    }
+    table.querySelector("tbody").innerHTML = hasMeeting ? htmlBody : `<tr><td colspan="5" class="no-data">Hôm nay không có lịch họp hoặc làm việc.</td></tr>`;
+}
+
+function startAutoScroll() {
+    const viewport = document.getElementById("viewport");
+
+    timer = setInterval(() => {
+        if (!running || isReloading) return;
+
+        const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+
+        if (maxScroll <= 10) return; 
+
+        if (y < maxScroll) {
+            y += 0.25; 
+            viewport.scrollTop = y;
+        } else {
+            isReloading = true;
+            clearInterval(timer);
+
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        }
+    }, 10); 
+}
+
+function toggleScroll() {
+    running = !running;
+    const btn = document.getElementById("btnToggle");
+    btn.textContent = running ? "⏯ Dừng / Chạy" : "🛑 Đã dừng";
+    btn.style.color = running ? "#b71c1c" : "grey";
+}
+
+init();
+</script>
+</body>
+</html>
