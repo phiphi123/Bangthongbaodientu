@@ -404,7 +404,7 @@ function startAutoScroll() {
         if (maxScroll <= 10) return;
 
         if (y < maxScroll) {
-            y += 0.25;
+            y += 0.5;
             viewport.scrollTop = y;
         } else {
             isReloading = true;
@@ -426,6 +426,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 
