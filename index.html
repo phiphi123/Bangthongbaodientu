@@ -394,49 +394,38 @@ function renderTodayMeetings(rows) {
 }
 
 /* ===== AUTO SCROLL + RELOAD ===== */
-let y = 0;
-let lastTime = null;
-let SPEED = 40; // px / giây (đổi số này)
-let isReloading = false;
-let running = true;
-
 function startAutoScroll() {
     const viewport = document.getElementById("viewport");
-    const content = document.getElementById("scrollContent");
 
-    function step(timestamp) {
-        if (!running || isReloading) {
-            lastTime = timestamp;
-            requestAnimationFrame(step);
-            return;
-        }
+    timer = setInterval(() => {
+        if (!running || isReloading) return;
 
-        if (!lastTime) lastTime = timestamp;
-        const delta = (timestamp - lastTime) / 1000; // giây
-        lastTime = timestamp;
+        const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+        if (maxScroll <= 10) return;
 
-        y += SPEED * delta;
-
-        const maxScroll = content.offsetHeight - viewport.clientHeight;
-
-        content.style.transform = `translate3d(0, -${y}px, 0)`;
-
-        if (y >= maxScroll) {
+        if (y < maxScroll) {
+            y += 3;
+            viewport.scrollTop = y;
+        } else {
             isReloading = true;
+            clearInterval(timer);
+
             setTimeout(() => location.reload(), 3000);
-            return;
         }
-
-        requestAnimationFrame(step);
-    }
-
-    requestAnimationFrame(step);
+    }, 10);
 }
 
+function toggleScroll() {
+    running = !running;
+    const btn = document.getElementById("btnToggle");
+    btn.textContent = running ? "⏯ Dừng / Chạy" : "🛑 Đã dừng";
+    btn.style.color = running ? "#b71c1c" : "grey";
+}
 init();
 </script>
 </body>
 </html>
+
 
 
 
