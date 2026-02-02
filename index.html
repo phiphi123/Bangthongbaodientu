@@ -394,38 +394,46 @@ function renderTodayMeetings(rows) {
 }
 
 /* ===== AUTO SCROLL + RELOAD ===== */
+let lastTime = null;
+let SPEED = 0.12; // px / ms  → tương đương ~4px / 33ms
+
 function startAutoScroll() {
     const viewport = document.getElementById("viewport");
 
-    timer = setInterval(() => {
-        if (!running || isReloading) return;
+    function step(timestamp) {
+        if (!running || isReloading) {
+            lastTime = timestamp;
+            requestAnimationFrame(step);
+            return;
+        }
+
+        if (!lastTime) lastTime = timestamp;
+        const delta = timestamp - lastTime;
+        lastTime = timestamp;
 
         const maxScroll = viewport.scrollHeight - viewport.clientHeight;
         if (maxScroll <= 10) return;
 
-        if (y < maxScroll) {
-            y += 4;
-            viewport.scrollTop = y;
-        } else {
+        y += delta * SPEED;
+        viewport.scrollTop = y;
+
+        if (y >= maxScroll) {
             isReloading = true;
-            clearInterval(timer);
-
             setTimeout(() => location.reload(), 3000);
+            return;
         }
-    }, 20);
-}
 
-function toggleScroll() {
-    running = !running;
-    const btn = document.getElementById("btnToggle");
-    btn.textContent = running ? "⏯ Dừng / Chạy" : "🛑 Đã dừng";
-    btn.style.color = running ? "#b71c1c" : "grey";
+        requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
 }
 
 init();
 </script>
 </body>
 </html>
+
 
 
 
