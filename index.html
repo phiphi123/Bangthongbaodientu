@@ -394,11 +394,15 @@ function renderTodayMeetings(rows) {
 }
 
 /* ===== AUTO SCROLL + RELOAD ===== */
+let y = 0;
 let lastTime = null;
-let SPEED = 0.12; // px / ms  → tương đương ~4px / 33ms
+let SPEED = 40; // px / giây (đổi số này)
+let isReloading = false;
+let running = true;
 
 function startAutoScroll() {
     const viewport = document.getElementById("viewport");
+    const content = document.getElementById("scrollContent");
 
     function step(timestamp) {
         if (!running || isReloading) {
@@ -408,14 +412,14 @@ function startAutoScroll() {
         }
 
         if (!lastTime) lastTime = timestamp;
-        const delta = timestamp - lastTime;
+        const delta = (timestamp - lastTime) / 1000; // giây
         lastTime = timestamp;
 
-        const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-        if (maxScroll <= 10) return;
+        y += SPEED * delta;
 
-        y += delta * SPEED;
-        viewport.scrollTop = y;
+        const maxScroll = content.offsetHeight - viewport.clientHeight;
+
+        content.style.transform = `translate3d(0, -${y}px, 0)`;
 
         if (y >= maxScroll) {
             isReloading = true;
@@ -433,6 +437,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 
