@@ -394,37 +394,75 @@ function renderTodayMeetings(rows) {
 }
 
 /* ===== AUTO SCROLL + RELOAD ===== */
-function startAutoScroll() {
-    const viewport = document.getElementById("viewport");
+/* ===== TỐI ƯU CHO SAMSUNG TV (TIZEN) ===== */
 
-    timer = setInterval(() => {
-        if (!running || isReloading) return;
+const viewport = document.getElementById("viewport");
+
+let y = 0;
+let running = true;
+let isReloading = false;
+
+// Tốc độ tối ưu cho Samsung Crystal UHD
+// 0.25 rất mượt – 0.35 là đẹp nhất
+const SPEED = 0.3;
+
+// Delay đứng ở cuối trang (ms)
+const END_DELAY = 2500;
+
+function startAutoScroll() {
+
+    function scrollStep() {
+        if (!running || isReloading) {
+            requestAnimationFrame(scrollStep);
+            return;
+        }
 
         const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-        if (maxScroll <= 10) return;
+
+        // Không đủ nội dung để cuộn
+        if (maxScroll <= 10) {
+            requestAnimationFrame(scrollStep);
+            return;
+        }
 
         if (y < maxScroll) {
-            y += 6;
+            y += SPEED;
             viewport.scrollTop = y;
+            requestAnimationFrame(scrollStep);
         } else {
+            // Đã tới cuối
             isReloading = true;
-            clearInterval(timer);
 
-            setTimeout(() => location.reload(), 3000);
+            setTimeout(() => {
+                location.reload();
+            }, END_DELAY);
         }
-    }, 60);
+    }
+
+    requestAnimationFrame(scrollStep);
 }
 
+/* ===== NÚT DỪNG / CHẠY ===== */
 function toggleScroll() {
     running = !running;
+
     const btn = document.getElementById("btnToggle");
+    if (!btn) return;
+
     btn.textContent = running ? "⏯ Dừng / Chạy" : "🛑 Đã dừng";
-    btn.style.color = running ? "#b71c1c" : "grey";
+    btn.style.color = running ? "#ff5252" : "grey";
 }
+
+/* ===== TỰ CHẠY KHI LOAD ===== */
+window.onload = () => {
+    y = 0;
+    startAutoScroll();
+};
 init();
 </script>
 </body>
 </html>
+
 
 
 
