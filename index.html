@@ -5,22 +5,105 @@
 <title>Bảng thông báo - Xã Phú Mỹ</title>
 
 <style>
-/* --- GIỮ NGUYÊN CSS TỐI ƯU CỦA BẠN --- */
-body { margin: 0; background: #050d1a; color: white; font-family: Arial, sans-serif; overflow: hidden; }
-#header { height: 70px; background: linear-gradient(to right, #b71c1c, #d32f2f); color: white; font-size: 24px; font-weight: bold; text-align: center; line-height: 70px; text-transform: uppercase; }
-#viewport { height: calc(100vh - 70px); overflow-y: auto; padding: 10px 15px; }
-#viewport::-webkit-scrollbar { width: 0px; background: transparent; }
+/* ===== TẾT BÍNH NGỌ 2026 ===== */
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at top, rgba(255,215,0,0.08), transparent 40%),
+        linear-gradient(to bottom, #4a0000, #120000);
+    color: #fff8e1;
+    font-family: "Segoe UI", Arial, sans-serif;
+    overflow: hidden;
+}
 
-#controls { position: fixed; top: 15px; right: 15px; z-index: 999; }
-#controls button { padding: 8px 15px; cursor: pointer; font-weight: bold; border: none; border-radius: 4px; background: #fff; color: #b71c1c; font-size: 16px; }
+/* ===== HEADER ===== */
+#header {
+    height: 70px;
+    background: linear-gradient(to right, #8b0000, #d32f2f, #8b0000);
+    color: #ffeb3b;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 70px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 6px rgba(255,215,0,0.8);
+    position: relative;
+}
 
-.section-header { margin-top: 30px; margin-bottom: 10px; padding: 12px; background: #002244; border-left: 8px solid #ffeb3b; font-size: 24px; font-weight: bold; color: #4fc3f7; text-transform: uppercase; }
+#header::before,
+#header::after {
+    content: "🐎";
+    position: absolute;
+    top: 8x;
+    font-size: 60px;
+}
+#header::before { left: 20px; }
+#header::after { right: 20px; }
 
-table { width: 100%; border-collapse: collapse; font-size: 24px; table-layout: fixed; background: rgba(0,0,0,0.2); margin-bottom: 30px; }
-th, td { border: 1px solid #444; padding: 15px 10px; vertical-align: middle; line-height: 1.4; word-wrap: break-word; }
-thead th { background: #0d47a1; color: #ffeb3b; text-align: center; position: sticky; top: -11px; z-index: 10; }
+/* ===== VIEWPORT ===== */
+#viewport {
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    padding: 10px 18px;
+}
+#viewport::-webkit-scrollbar { width: 0; }
 
-/* Tỷ lệ cột bảng công việc */
+/* ===== CONTROLS ===== */
+#controls {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 999;
+}
+#controls button {
+    padding: 8px 16px;
+    font-weight: bold;
+    border-radius: 20px;
+    border: 2px solid #ffeb3b;
+    background: linear-gradient(to bottom, #ffd700, #f9a825);
+    color: #7a0000;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 90px;
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    padding: 14px;
+    background: linear-gradient(to right, #7a0000, #b71c1c);
+    border-left: 10px solid #ffeb3b;
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffeb3b;
+    text-transform: uppercase;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 24px;
+    table-layout: fixed;
+    background: rgba(0,0,0,0.35);
+    margin-bottom: 30px;
+}
+th, td {
+    border: 1px solid rgba(255,215,0,0.35);
+    padding: 14px 10px;
+    vertical-align: middle;
+}
+thead th {
+    background: linear-gradient(to bottom, #a00000, #6a0000);
+    color: #ffeb3b;
+    position: sticky;
+    top: -11px;
+    z-index: 10;
+}
+
+/* ===== JOBS TABLE WIDTH ===== */
 #table-jobs th:nth-child(1), #table-jobs td:nth-child(1) { width: 30%; text-align: justify; }
 #table-jobs th:nth-child(2), #table-jobs td:nth-child(2) { width: 6%; text-align: center; }
 #table-jobs th:nth-child(3), #table-jobs td:nth-child(3) { width: 10%; text-align: center; }
@@ -30,30 +113,102 @@ thead th { background: #0d47a1; color: #ffeb3b; text-align: center; position: st
 #table-jobs th:nth-child(7), #table-jobs td:nth-child(7) { width: 11%; text-align: center; }
 #table-jobs th:nth-child(8), #table-jobs td:nth-child(8) { width: 8%; text-align: center; }
 
-/* Tỷ lệ cột bảng lịch họp */
-#table-meetings th:nth-child(1), #table-meetings td:nth-child(1) { width: 10%; text-align: center; color: #ffeb3b; font-weight: bold; }
-#table-meetings th:nth-child(2), #table-meetings td:nth-child(2) { width: 10%; text-align: center; color: #ff5252; font-weight: bold; }
-#table-meetings th:nth-child(3), #table-meetings td:nth-child(3) { width: 30%; text-align: justify; }
-#table-meetings th:nth-child(4), #table-meetings td:nth-child(4) { width: 15%; text-align: justify }
-
-/* Cột Thành phần tham dự - Tối ưu xuống dòng */
-#table-meetings th:nth-child(5), #table-meetings td:nth-child(5) { 
-    width: 20%; 
-    font-style: italic; 
-    text-align: left; 
-    white-space: normal; 
-    word-break: break-word; 
-    line-height: 1.2; 
+/* ===== MEETINGS TABLE ===== */
+#table-meetings th:nth-child(1), #table-meetings td:nth-child(1) {
+    width: 10%; text-align: center; color: #ffeb3b; font-weight: bold;
+}
+#table-meetings th:nth-child(2), #table-meetings td:nth-child(2) {
+    width: 10%; text-align: center; color: #ff5252; font-weight: bold;
+}
+#table-meetings th:nth-child(3), #table-meetings td:nth-child(3) {
+    width: 30%; text-align: justify;
+}
+#table-meetings th:nth-child(4), #table-meetings td:nth-child(4) {
+    width: 15%; text-align: justify;
+}
+#table-meetings th:nth-child(5), #table-meetings td:nth-child(5) {
+    width: 20%; font-style: italic; white-space: normal;
 }
 
-.status-bad { background: #b71c1c; padding: 4px 8px; border-radius: 4px; font-weight: bold; display: inline-block; }
-.no-data { text-align: center; padding: 40px; color: #aaa; font-style: italic; font-size: 22px; }
+/* ===== STATUS ===== */
+.status-bad {
+    background: linear-gradient(to right, #b71c1c, #ff5252);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #ffd54f;
+    font-style: italic;
+    font-size: 22px;
+}
+/* ===== HOA MAI VÀNG PHÍA TRÊN (CSS THUẦN – TV NÀO CŨNG THẤY) ===== */
+/* ===== HOA MAI 5 CÁNH – CSS THUẦN ===== */
+.mai-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    pointer-events: none;
+    z-index: 999;
+
+    background:
+    /* Hoa 1 */
+    radial-gradient(circle at 10% 50%, #ffb300 0 4px, transparent 5px),
+    radial-gradient(circle at 9% 45%,  #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 11% 45%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 9% 55%,  #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 11% 55%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 10% 50%, #fff176 0 12px, transparent 13px),
+
+    /* Hoa 2 */
+    radial-gradient(circle at 30% 40%, #ffb300 0 4px, transparent 5px),
+    radial-gradient(circle at 29% 35%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 31% 35%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 29% 45%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 31% 45%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 30% 40%, #fff176 0 11px, transparent 12px),
+
+    /* Hoa 3 */
+    radial-gradient(circle at 55% 55%, #ffb300 0 4px, transparent 5px),
+    radial-gradient(circle at 54% 50%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 56% 50%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 54% 60%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 56% 60%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 55% 55%, #fff176 0 12px, transparent 13px),
+
+    /* Hoa 4 */
+    radial-gradient(circle at 75% 40%, #ffb300 0 4px, transparent 5px),
+    radial-gradient(circle at 74% 35%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 76% 35%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 74% 45%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 76% 45%, #ffeb3b 0 9px, transparent 10px),
+    radial-gradient(circle at 75% 40%, #fff176 0 11px, transparent 12px),
+
+    /* Hoa 5 */
+    radial-gradient(circle at 90% 55%, #ffb300 0 4px, transparent 5px),
+    radial-gradient(circle at 89% 50%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 91% 50%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 89% 60%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 91% 60%, #ffeb3b 0 10px, transparent 11px),
+    radial-gradient(circle at 90% 55%, #fff176 0 12px, transparent 13px);
+
+    background-repeat: no-repeat;
+}
+
 </style>
 </head>
 
 <body>
-
-<div id="header">BẢNG THEO DÕI CÔNG VIỆC VÀ LỊCH CÔNG TÁC</div>
+<div class="mai-top"></div>
+<div id="header">
+    BẢNG THEO DÕI CÔNG VIỆC & LỊCH CÔNG TÁC
+</div>
 
 <div id="controls">
     <button id="btnToggle" onclick="toggleScroll()">⏯ Dừng / Chạy</button>
@@ -61,13 +216,21 @@ thead th { background: #0d47a1; color: #ffeb3b; text-align: center; position: st
 
 <div id="viewport">
     <div class="section-header">📋 THEO DÕI CÔNG VIỆC & VĂN BẢN</div>
-    <table id="table-jobs"><thead></thead><tbody></tbody></table>
+    <table id="table-jobs">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
 
-    <div class="section-header">📅 LỊCH HỌP HÔM NAY (<span id="today-date"></span>)</div>
-    <table id="table-meetings"><thead></thead><tbody></tbody></table>
-    <div style="height: 150px;"></div>
+    <div class="section-header">
+        📅 LỊCH HỌP HÔM NAY (<span id="today-date"></span>)
+    </div>
+    <table id="table-meetings">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+
+    <div style="height:150px"></div>
 </div>
-
 <script>
 const API_KEY = "AIzaSyDWQsIW0i67F2nVSEpMq3Rj_oT228rVsCU";
 const SHEET_ID = "15QTF-k5nHtDqyTJ5m_LwGxPjPq0XHTFq5KLOCG9IQIg";
@@ -79,9 +242,24 @@ let running = true;
 let isReloading = false;
 let timer = null;
 
+/* ===== HÀM HỖ TRỢ ===== */
+function parseVNDate(str) {
+    if (!str) return null;
+    const p = str.split("/");
+    if (p.length !== 3) return null;
+    return new Date(p[2], p[1] - 1, p[0]);
+}
+
+function isNotCompleted(status) {
+    if (!status) return true;
+    return !status.toLowerCase().includes("hoàn thành");
+}
+
+/* ===== INIT ===== */
 async function init() {
     const now = new Date();
-    document.getElementById("today-date").textContent = now.toLocaleDateString('vi-VN');
+    document.getElementById("today-date").textContent =
+        now.toLocaleDateString("vi-VN");
 
     try {
         const [resJobs, resMeetings] = await Promise.all([
@@ -97,69 +275,125 @@ async function init() {
 
         setTimeout(startAutoScroll, 2000);
     } catch (e) {
-        console.error("Lỗi:", e);
+        console.error("Lỗi tải dữ liệu:", e);
     }
 }
 
+/* ===== BẢNG CÔNG VIỆC ===== */
 function renderJobsTable(rows) {
     if (!rows || rows.length < 2) return;
-    const table = document.getElementById("table-jobs");
-    table.querySelector("thead").innerHTML = "<tr>" + rows[0].map(c => `<th>${c}</th>`).join('') + "</tr>";
 
-    let htmlBody = "";
-    const statusIdx = rows[0].findIndex(c => c.toLowerCase().includes("trạng thái"));
+    const table = document.getElementById("table-jobs");
+    const headers = rows[0];
+
+    table.querySelector("thead").innerHTML =
+        "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+    const statusIdx = headers.findIndex(h =>
+        h.toLowerCase().includes("trạng thái")
+    );
+
+    const deadlineIdx = headers.findIndex(h =>
+        h.toLowerCase().includes("thời hạn")
+    );
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    let html = "";
+
     rows.slice(1).forEach(row => {
-        if(!row[0]) return;
-        htmlBody += "<tr>";
-        for(let i=0; i<rows[0].length; i++){
+        if (!row || !row[0]) return;
+
+        const status = row[statusIdx] || "";
+        const deadlineStr = row[deadlineIdx] || "";
+        const deadlineDate = parseVNDate(deadlineStr);
+
+        // ❌ Đã hoàn thành
+        if (!isNotCompleted(status)) return;
+
+        // ❌ Không có hạn hoặc sau ngày mai
+        if (!deadlineDate || deadlineDate > tomorrow) return;
+
+        html += "<tr>";
+
+        headers.forEach((_, i) => {
             let cell = row[i] || "";
-            if(i === statusIdx && (cell.toLowerCase().includes("quá") || cell.toLowerCase().includes("trễ"))) {
+
+            if (
+                i === statusIdx &&
+                (cell.toLowerCase().includes("quá") ||
+                 cell.toLowerCase().includes("trễ"))
+            ) {
                 cell = `<span class="status-bad">${cell}</span>`;
             }
-            htmlBody += `<td>${cell}</td>`;
-        }
-        htmlBody += "</tr>";
+
+            html += `<td>${cell}</td>`;
+        });
+
+        html += "</tr>";
     });
-    table.querySelector("tbody").innerHTML = htmlBody;
+
+    table.querySelector("tbody").innerHTML =
+        html || `<tr>
+            <td colspan="${headers.length}" class="no-data">
+                Không có công việc cần theo dõi.
+            </td>
+        </tr>`;
 }
 
+/* ===== LỊCH HỌP HÔM NAY ===== */
 function renderTodayMeetings(rows) {
     if (!rows || rows.length < 4) return;
+
     const table = document.getElementById("table-meetings");
-    table.querySelector("thead").innerHTML = "<tr>" + rows[2].map(c => `<th>${c}</th>`).join('') + "</tr>";
+    table.querySelector("thead").innerHTML =
+        "<tr>" + rows[2].map(c => `<th>${c}</th>`).join("") + "</tr>";
 
     const now = new Date();
-    const todaySearch = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+    const todayStr =
+        String(now.getDate()).padStart(2, "0") + "/" +
+        String(now.getMonth() + 1).padStart(2, "0") + "/" +
+        now.getFullYear();
 
-    let htmlBody = "";
+    let html = "";
     let lastDate = "";
     let hasMeeting = false;
 
     for (let i = 3; i < rows.length; i++) {
         const row = rows[i];
         if (!row || row.length < 2) continue;
+
         let dateCell = row[0] ? row[0].trim() : lastDate;
         if (row[0]) lastDate = row[0].trim();
 
-        if (dateCell.includes(todaySearch)) {
+        if (dateCell.includes(todayStr)) {
             hasMeeting = true;
-            htmlBody += "<tr><td>" + (row[0] || "") + "</td>";
-            
-            // Xử lý các cột dữ liệu (Giờ, Nội dung, Địa điểm, Thành phần)
+            html += "<tr>";
+            html += `<td>${row[0] || ""}</td>`;
+
             for (let k = 1; k < 5; k++) {
-                let cellData = row[k] || "";
-                // Nếu là cột Thành phần tham dự (k=4), xử lý xuống dòng
-                if (k === 4) {
-                    cellData = cellData.replace(/\n/g, "<br>");
-                }
-                htmlBody += `<td>${cellData}</td>`;
+                let cell = row[k] || "";
+                if (k === 4) cell = cell.replace(/\n/g, "<br>");
+                html += `<td>${cell}</td>`;
             }
-            htmlBody += "</tr>";
+
+            html += "</tr>";
         }
     }
-    table.querySelector("tbody").innerHTML = hasMeeting ? htmlBody : `<tr><td colspan="5" class="no-data">Hôm nay không có lịch họp hoặc làm việc.</td></tr>`;
+
+    table.querySelector("tbody").innerHTML =
+        hasMeeting
+        ? html
+        : `<tr><td colspan="5" class="no-data">
+            Hôm nay không có lịch họp hoặc làm việc.
+           </td></tr>`;
 }
 
+/* ===== AUTO SCROLL + RELOAD ===== */
 function startAutoScroll() {
     const viewport = document.getElementById("viewport");
 
@@ -167,21 +401,18 @@ function startAutoScroll() {
         if (!running || isReloading) return;
 
         const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-
-        if (maxScroll <= 10) return; 
+        if (maxScroll <= 10) return;
 
         if (y < maxScroll) {
-            y += 0.25; 
+            y += 0.25;
             viewport.scrollTop = y;
         } else {
             isReloading = true;
             clearInterval(timer);
 
-            setTimeout(() => {
-                location.reload();
-            }, 3000);
+            setTimeout(() => location.reload(), 3000);
         }
-    }, 10); 
+    }, 10);
 }
 
 function toggleScroll() {
