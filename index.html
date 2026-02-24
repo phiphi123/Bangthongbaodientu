@@ -397,22 +397,33 @@ function renderTodayMeetings(rows) {
 function startAutoScroll() {
     const viewport = document.getElementById("viewport");
 
-    timer = setInterval(() => {
-        if (!running || isReloading) return;
+    const SPEED = 2.2;       // 🔥 tăng tốc tại đây (2 → 3 là đẹp nhất)
+    const END_DELAY = 2000;  // dừng ở cuối trước khi reload
+
+    function scrollStep() {
+        if (!running || isReloading) {
+            requestAnimationFrame(scrollStep);
+            return;
+        }
 
         const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-        if (maxScroll <= 10) return;
+
+        if (maxScroll <= 10) {
+            requestAnimationFrame(scrollStep);
+            return;
+        }
 
         if (y < maxScroll) {
-            y += 1.25;
+            y += SPEED;
             viewport.scrollTop = y;
+            requestAnimationFrame(scrollStep);
         } else {
             isReloading = true;
-            clearInterval(timer);
-
-            setTimeout(() => location.reload(), 3000);
+            setTimeout(() => location.reload(), END_DELAY);
         }
-    }, 20);
+    }
+
+    requestAnimationFrame(scrollStep);
 }
 
 function toggleScroll() {
@@ -426,4 +437,5 @@ init();
 </script>
 </body>
 </html>
+
 
