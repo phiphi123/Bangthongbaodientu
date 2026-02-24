@@ -202,6 +202,7 @@ thead th {
 }
 
 </style>
+
 </head>
 
 <body>
@@ -237,7 +238,6 @@ const SHEET_ID = "15QTF-k5nHtDqyTJ5m_LwGxPjPq0XHTFq5KLOCG9IQIg";
 const SHEET_JOBS = "Bảng thông báo điện tử";
 const SHEET_MEETINGS = "Lịch họp 2026";
 
-/* ===== BIẾN TOÀN CỤC ===== */
 let y = 0;
 let running = true;
 let isReloading = false;
@@ -256,7 +256,7 @@ function isNotCompleted(status) {
     return !status.toLowerCase().includes("hoàn thành");
 }
 
-/* ===== LOAD DỮ LIỆU ===== */
+/* ===== INIT ===== */
 async function init() {
     const now = new Date();
     document.getElementById("today-date").textContent =
@@ -264,36 +264,27 @@ async function init() {
 
     try {
         const [resJobs, resMeetings] = await Promise.all([
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_JOBS)}!A1:H200?key=${API_KEY}`),
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_MEETINGS)}!A1:F200?key=${API_KEY}`)
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_JOBS)}!A1:H100?key=${API_KEY}`),
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_MEETINGS)}!A1:F100?key=${API_KEY}`)
         ]);
-
-        if (!resJobs.ok || !resMeetings.ok) {
-            throw new Error("API trả lỗi. Kiểm tra Sheet public hoặc API key.");
-        }
 
         const dataJobs = await resJobs.json();
         const dataMeetings = await resMeetings.json();
 
-        renderJobsTable(dataJobs.values || []);
-        renderTodayMeetings(dataMeetings.values || []);
+        renderJobsTable(dataJobs.values);
+        renderTodayMeetings(dataMeetings.values);
 
-        setTimeout(startAutoScroll, 1500);
-
-    } catch (err) {
-        console.error("Lỗi tải dữ liệu:", err);
+        setTimeout(startAutoScroll, 2000);
+    } catch (e) {
+        console.error("Lỗi tải dữ liệu:", e);
     }
 }
 
 /* ===== BẢNG CÔNG VIỆC ===== */
 function renderJobsTable(rows) {
-    const table = document.getElementById("table-jobs");
-    if (!rows || rows.length < 2) {
-        table.querySelector("tbody").innerHTML =
-            `<tr><td colspan="8" class="no-data">Không có dữ liệu.</td></tr>`;
-        return;
-    }
+    if (!rows || rows.length < 2) return;
 
+    const table = document.getElementById("table-jobs");
     const headers = rows[0];
 
     table.querySelector("thead").innerHTML =
@@ -322,7 +313,10 @@ function renderJobsTable(rows) {
         const deadlineStr = row[deadlineIdx] || "";
         const deadlineDate = parseVNDate(deadlineStr);
 
+        // ❌ Đã hoàn thành
         if (!isNotCompleted(status)) return;
+
+        // ❌ Không có hạn hoặc sau ngày mai
         if (!deadlineDate || deadlineDate > tomorrow) return;
 
         html += "<tr>";
@@ -354,14 +348,9 @@ function renderJobsTable(rows) {
 
 /* ===== LỊCH HỌP HÔM NAY ===== */
 function renderTodayMeetings(rows) {
+    if (!rows || rows.length < 4) return;
+
     const table = document.getElementById("table-meetings");
-
-    if (!rows || rows.length < 4) {
-        table.querySelector("tbody").innerHTML =
-            `<tr><td colspan="5" class="no-data">Không có dữ liệu.</td></tr>`;
-        return;
-    }
-
     table.querySelector("thead").innerHTML =
         "<tr>" + rows[2].map(c => `<th>${c}</th>`).join("") + "</tr>";
 
@@ -405,7 +394,7 @@ function renderTodayMeetings(rows) {
            </td></tr>`;
 }
 
-/* ===== AUTO SCROLL MƯỢT ===== */
+/* ===== AUTO SCROLL + RELOAD ===== */
 function startAutoScroll() {
     const viewport = document.getElementById("viewport");
 
@@ -416,7 +405,7 @@ function startAutoScroll() {
         if (maxScroll <= 10) return;
 
         if (y < maxScroll) {
-            y += 1;
+            y += 1.25;
             viewport.scrollTop = y;
         } else {
             isReloading = true;
@@ -424,10 +413,9 @@ function startAutoScroll() {
 
             setTimeout(() => location.reload(), 3000);
         }
-    }, 35);
+    }, 40);
 }
 
-/* ===== NÚT DỪNG / CHẠY ===== */
 function toggleScroll() {
     running = !running;
     const btn = document.getElementById("btnToggle");
@@ -435,20 +423,7 @@ function toggleScroll() {
     btn.style.color = running ? "#b71c1c" : "grey";
 }
 
-/* ===== CHẠY ===== */
-window.onload = init;
+init();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
