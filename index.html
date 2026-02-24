@@ -237,6 +237,7 @@ const SHEET_ID = "15QTF-k5nHtDqyTJ5m_LwGxPjPq0XHTFq5KLOCG9IQIg";
 const SHEET_JOBS = "Bảng thông báo điện tử";
 const SHEET_MEETINGS = "Lịch họp 2026";
 
+/* ===== BIẾN TOÀN CỤC ===== */
 let y = 0;
 let running = true;
 let isReloading = false;
@@ -255,7 +256,7 @@ function isNotCompleted(status) {
     return !status.toLowerCase().includes("hoàn thành");
 }
 
-/* ===== INIT ===== */
+/* ===== LOAD DỮ LIỆU ===== */
 async function init() {
     const now = new Date();
     document.getElementById("today-date").textContent =
@@ -263,27 +264,36 @@ async function init() {
 
     try {
         const [resJobs, resMeetings] = await Promise.all([
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_JOBS)}!A1:H100?key=${API_KEY}`),
-            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_MEETINGS)}!A1:F100?key=${API_KEY}`)
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_JOBS)}!A1:H200?key=${API_KEY}`),
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_MEETINGS)}!A1:F200?key=${API_KEY}`)
         ]);
+
+        if (!resJobs.ok || !resMeetings.ok) {
+            throw new Error("API trả lỗi. Kiểm tra Sheet public hoặc API key.");
+        }
 
         const dataJobs = await resJobs.json();
         const dataMeetings = await resMeetings.json();
 
-        renderJobsTable(dataJobs.values);
-        renderTodayMeetings(dataMeetings.values);
+        renderJobsTable(dataJobs.values || []);
+        renderTodayMeetings(dataMeetings.values || []);
 
-        setTimeout(startAutoScroll, 2000);
-    } catch (e) {
-        console.error("Lỗi tải dữ liệu:", e);
+        setTimeout(startAutoScroll, 1500);
+
+    } catch (err) {
+        console.error("Lỗi tải dữ liệu:", err);
     }
 }
 
 /* ===== BẢNG CÔNG VIỆC ===== */
 function renderJobsTable(rows) {
-    if (!rows || rows.length < 2) return;
-
     const table = document.getElementById("table-jobs");
+    if (!rows || rows.length < 2) {
+        table.querySelector("tbody").innerHTML =
+            `<tr><td colspan="8" class="no-data">Không có dữ liệu.</td></tr>`;
+        return;
+    }
+
     const headers = rows[0];
 
     table.querySelector("thead").innerHTML =
@@ -312,10 +322,7 @@ function renderJobsTable(rows) {
         const deadlineStr = row[deadlineIdx] || "";
         const deadlineDate = parseVNDate(deadlineStr);
 
-        // ❌ Đã hoàn thành
         if (!isNotCompleted(status)) return;
-
-        // ❌ Không có hạn hoặc sau ngày mai
         if (!deadlineDate || deadlineDate > tomorrow) return;
 
         html += "<tr>";
@@ -347,9 +354,14 @@ function renderJobsTable(rows) {
 
 /* ===== LỊCH HỌP HÔM NAY ===== */
 function renderTodayMeetings(rows) {
-    if (!rows || rows.length < 4) return;
-
     const table = document.getElementById("table-meetings");
+
+    if (!rows || rows.length < 4) {
+        table.querySelector("tbody").innerHTML =
+            `<tr><td colspan="5" class="no-data">Không có dữ liệu.</td></tr>`;
+        return;
+    }
+
     table.querySelector("thead").innerHTML =
         "<tr>" + rows[2].map(c => `<th>${c}</th>`).join("") + "</tr>";
 
@@ -393,75 +405,42 @@ function renderTodayMeetings(rows) {
            </td></tr>`;
 }
 
-/* ===== AUTO SCROLL + RELOAD ===== */
-/* ===== TỐI ƯU CHO SAMSUNG TV (TIZEN) ===== */
-
-const viewport = document.getElementById("viewport");
-
-let y = 0;
-let running = true;
-let isReloading = false;
-
-// Tốc độ tối ưu cho Samsung Crystal UHD
-// 0.25 rất mượt – 0.35 là đẹp nhất
-const SPEED = 0.3;
-
-// Delay đứng ở cuối trang (ms)
-const END_DELAY = 2500;
-
+/* ===== AUTO SCROLL MƯỢT ===== */
 function startAutoScroll() {
+    const viewport = document.getElementById("viewport");
 
-    function scrollStep() {
-        if (!running || isReloading) {
-            requestAnimationFrame(scrollStep);
-            return;
-        }
+    timer = setInterval(() => {
+        if (!running || isReloading) return;
 
         const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-
-        // Không đủ nội dung để cuộn
-        if (maxScroll <= 10) {
-            requestAnimationFrame(scrollStep);
-            return;
-        }
+        if (maxScroll <= 10) return;
 
         if (y < maxScroll) {
-            y += SPEED;
+            y += 1;
             viewport.scrollTop = y;
-            requestAnimationFrame(scrollStep);
         } else {
-            // Đã tới cuối
             isReloading = true;
+            clearInterval(timer);
 
-            setTimeout(() => {
-                location.reload();
-            }, END_DELAY);
+            setTimeout(() => location.reload(), 3000);
         }
-    }
-
-    requestAnimationFrame(scrollStep);
+    }, 35);
 }
 
 /* ===== NÚT DỪNG / CHẠY ===== */
 function toggleScroll() {
     running = !running;
-
     const btn = document.getElementById("btnToggle");
-    if (!btn) return;
-
     btn.textContent = running ? "⏯ Dừng / Chạy" : "🛑 Đã dừng";
-    btn.style.color = running ? "#ff5252" : "grey";
+    btn.style.color = running ? "#b71c1c" : "grey";
 }
 
-/* ===== TỰ CHẠY KHI LOAD ===== */
-window.onload = () => {
-    y = 0;
-    startAutoScroll();
-};
-init();
+/* ===== CHẠY ===== */
+window.onload = init;
 </script>
 </body>
 </html>
+
 
 
 
