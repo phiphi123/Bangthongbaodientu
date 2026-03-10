@@ -143,7 +143,7 @@ let v=$("#viewport")
 function f(){
 if(!run||reload){requestAnimationFrame(f);return}
 let m=v.scrollHeight-v.clientHeight
-if(y<m){y+=.7;v.scrollTop=y}
+if(y<m){y+=5.7;v.scrollTop=y}
 else{reload=1;setTimeout(()=>location.reload(),3000);return}
 requestAnimationFrame(f)
 }
@@ -155,3 +155,4 @@ init()
 </script>
 </body>
 </html>
+
