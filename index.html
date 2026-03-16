@@ -1,158 +1,294 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Bảng thông báo - Xã Phú Mỹ</title>
+<title>Bảng thông báo</title>
 
 <style>
-body{margin:0;font-family:Segoe UI,system-ui;background:radial-gradient(circle at 50% -10%,rgba(255,215,0,.25),transparent 40%),linear-gradient(180deg,#2a0000,#0e0e0e);color:#f5f5f5;overflow:hidden}
-#header{height:72px;line-height:72px;text-align:center;font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ffd600;background:linear-gradient(90deg,#7a0000,#c62828,#7a0000);box-shadow:0 4px 25px rgba(0,0,0,.6),inset 0 -2px 0 rgba(255,215,0,.4);position:relative}
-#header:before,#header:after{content:"🐎";position:absolute;font-size:56px;top:6px;opacity:.9}
-#header:before{left:25px}#header:after{right:25px}
-#viewport{height:calc(100vh - 72px);overflow:auto;padding:20px}
-#viewport::-webkit-scrollbar{width:6px}
-#viewport::-webkit-scrollbar-thumb{background:#ffb300;border-radius:6px}
-.section{margin:35px 0 15px;padding:16px 18px;font-size:26px;font-weight:700;text-transform:uppercase;background:linear-gradient(90deg,#6a0000,#b71c1c);border-left:8px solid #ffd700;border-radius:8px}
-table{width:100%;border-collapse:collapse;font-size:23px;background:rgba(0,0,0,.45);border-radius:12px;overflow:hidden;margin-bottom:35px}
-thead th{background:linear-gradient(180deg,#a00000,#6a0000);color:#ffeb3b;padding:15px;position:sticky;top:0}
-td{padding:14px 12px;border-bottom:1px solid rgba(255,215,0,.25)}
-tbody tr:hover{background:rgba(255,215,0,.08)}
-.status{background:linear-gradient(90deg,#d32f2f,#ff5252);color:#fff;padding:6px 14px;border-radius:20px;font-weight:600;white-space:nowrap}
-.no{padding:40px;text-align:center;font-size:22px;font-style:italic;color:#ffd54f}
-/* ===== HOA MAI TRANG TRÍ ===== */
-#header::before,
-#header::after{
-content:"🐎";
-position:absolute;
-font-size:56px;
-top:6px;
-opacity:.9;
+
+body{
+margin:0;
+font-family:Arial,system-ui;
+background:#111;
+color:#fff;
+overflow:hidden;
+transform:scale(2);
+transform-origin:top left;
+width:50%;
 }
-#header::before{left:25px}
-#header::after{right:25px}
-/* ===== HOA MAI TRANG TRÍ ===== */
-#header span{
-position:absolute;
-top:1px;
-font-size:32px;
-color:#ffd600;
-text-shadow:
-0 0 6px #ffd600,
-0 0 12px #ffeb3b;
-pointer-events:none;
+
+#header{
+height:60px;
+line-height:60px;
+text-align:center;
+font-size:28px;
+font-weight:700;
+background:#8b0000;
+color:#ffd700;
 }
-.mai1{left:120px;padding-top: 10px;}
-.mai2{left:260px}
-.mai3{right:260px}
-.mai4{right:120px;padding-top: 10px;}
+
+#viewport{
+height:calc(100vh - 60px);
+overflow:auto;
+padding:10px;
+}
+
+.section{
+margin:25px 0 10px;
+padding:10px;
+font-size:24px;
+font-weight:700;
+background:#b22222;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:22px;
+margin-bottom:25px;
+}
+
+th{
+background:#660000;
+color:#ffeb3b;
+padding:10px;
+text-align:left;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid #444;
+}
+
+.status{
+background:#ff4444;
+padding:4px 10px;
+border-radius:12px;
+}
+
+.no{
+text-align:center;
+padding:30px;
+font-size:22px;
+color:#ccc;
+}
+
 </style>
 </head>
+
 <body>
+
 <div id="header">
 BẢNG THEO DÕI CÔNG VIỆC & LỊCH CÔNG TÁC
-<span class="mai1">🌸</span>
-<span class="mai2">🌸</span>
-<span class="mai3">🌸</span>
-<span class="mai4">🌸</span>
 </div>
+
 <div id="viewport">
-<div class="section">📋 THEO DÕI CÔNG VIỆC & VĂN BẢN</div>
-<table id="jobs"><thead></thead><tbody></tbody></table>
-<div class="section">📅 LỊCH HỌP HÔM NAY (<span id="today"></span>)</div>
-<table id="meet"><thead></thead><tbody></tbody></table>
-<div style="height:150px"></div>
+
+<div class="section">THEO DÕI CÔNG VIỆC</div>
+<table id="jobs">
+<thead></thead>
+<tbody></tbody>
+</table>
+
+<div class="section">LỊCH HỌP HÔM NAY (<span id="today"></span>)</div>
+<table id="meet">
+<thead></thead>
+<tbody></tbody>
+</table>
+
+<div style="height:120px"></div>
+
 </div>
+
 <script>
+
 const KEY="AIzaSyDWQsIW0i67F2nVSEpMq3Rj_oT228rVsCU"
 const ID="15QTF-k5nHtDqyTJ5m_LwGxPjPq0XHTFq5KLOCG9IQIg"
+
 const SHEET1="Bảng thông báo điện tử"
 const SHEET2="Lịch họp 2026"
+
 let y=0,run=1,reload=0
+
 const $=e=>document.querySelector(e)
-const parse=d=>{
+
+function parse(d){
 if(!d)return
 let p=d.split("/")
 return new Date(p[2],p[1]-1,p[0])
 }
-const notDone=s=>!s||!s.toLowerCase().includes("hoàn thành")
+
+function notDone(s){
+return !s||!s.toLowerCase().includes("hoàn thành")
+}
+
 async function init(){
+
 $("#today").textContent=new Date().toLocaleDateString("vi-VN")
+
 let [a,b]=await Promise.all([
 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${ID}/values/${encodeURIComponent(SHEET1)}!A1:H100?key=${KEY}`),
 fetch(`https://sheets.googleapis.com/v4/spreadsheets/${ID}/values/${encodeURIComponent(SHEET2)}!A1:F100?key=${KEY}`)
 ])
+
 let j=(await a.json()).values
 let m=(await b.json()).values
+
 jobs(j)
 meet(m)
+
 setTimeout(scroll,2000)
+
 }
+
 function jobs(r){
+
 if(!r||r.length<2)return
+
 let h=r[0]
+
 $("#jobs thead").innerHTML="<tr>"+h.map(x=>`<th>${x}</th>`).join("")+"</tr>"
+
 let s=h.findIndex(x=>x.toLowerCase().includes("trạng"))
 let d=h.findIndex(x=>x.toLowerCase().includes("thời"))
-let t=new Date();t.setHours(0,0,0,0)
-let tm=new Date(t);tm.setDate(t.getDate()+1)
+
+let t=new Date()
+t.setHours(0,0,0,0)
+
+let tm=new Date(t)
+tm.setDate(t.getDate()+1)
+
 let html=""
+
 r.slice(1).forEach(row=>{
+
 if(!row||!row[0])return
+
 let st=row[s]||""
 let dl=parse(row[d])
+
 if(!notDone(st)||!dl||dl>tm)return
+
 html+="<tr>"
+
 h.forEach((_,i)=>{
+
 let c=row[i]||""
+
 if(i==s&&(c.toLowerCase().includes("quá")||c.toLowerCase().includes("trễ")))
 c=`<span class="status">${c}</span>`
+
 html+=`<td>${c}</td>`
+
 })
+
 html+="</tr>"
+
 })
-$("#jobs tbody").innerHTML=html||`<tr><td colspan="${h.length}" class="no">Không có công việc cần theo dõi.</td></tr>`
+
+$("#jobs tbody").innerHTML=
+html||`<tr><td colspan="${h.length}" class="no">Không có công việc.</td></tr>`
+
 }
+
 function meet(r){
+
 if(!r||r.length<4)return
+
 $("#meet thead").innerHTML="<tr>"+r[2].map(x=>`<th>${x}</th>`).join("")+"</tr>"
+
 let n=new Date()
+
 let today=("0"+n.getDate()).slice(-2)+"/"+("0"+(n.getMonth()+1)).slice(-2)+"/"+n.getFullYear()
+
 let last="",html="",ok=0
+
 for(let i=3;i<r.length;i++){
+
 let row=r[i]
+
 if(!row||row.length<2)continue
+
 let d=row[0]?row[0].trim():last
 if(row[0])last=row[0].trim()
+
 if(d.includes(today)){
+
 ok=1
+
 html+="<tr>"
+
 html+=`<td>${row[0]||""}</td>`
+
 for(let k=1;k<5;k++){
+
 let c=row[k]||""
+
 if(k==4)c=c.replace(/\n/g,"<br>")
+
 html+=`<td>${c}</td>`
+
 }
+
 html+="</tr>"
+
 }
+
 }
+
 $("#meet tbody").innerHTML=
-ok?html:`<tr><td colspan="5" class="no">Hôm nay không có lịch họp hoặc làm việc.</td></tr>`
+ok?html:`<tr><td colspan="5" class="no">Hôm nay không có lịch họp.</td></tr>`
+
 }
+
 function scroll(){
+
 let v=$("#viewport")
+
 function f(){
-if(!run||reload){requestAnimationFrame(f);return}
+
+if(!run||reload){
+requestAnimationFrame(f)
+return
+}
+
 let m=v.scrollHeight-v.clientHeight
-if(y<m){y+=5.7;v.scrollTop=y}
-else{reload=1;setTimeout(()=>location.reload(),3000);return}
-requestAnimationFrame(f)
+
+if(y<m){
+
+y+=5
+v.scrollTop=y
+
+}else{
+
+reload=1
+setTimeout(()=>location.reload(),3000)
+return
+
 }
+
 requestAnimationFrame(f)
+
 }
+
+requestAnimationFrame(f)
+
+}
+
 document.addEventListener("click",()=>run=!run)
-document.addEventListener("keydown",e=>{if(e.code=="Space"){e.preventDefault();run=!run}})
+
+document.addEventListener("keydown",e=>{
+if(e.code=="Space"){
+e.preventDefault()
+run=!run
+}
+})
+
 init()
+
 </script>
+
 </body>
 </html>
-
+```
