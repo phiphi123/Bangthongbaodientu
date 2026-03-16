@@ -13,71 +13,80 @@ font-family:Arial,system-ui;
 background:#111;
 color:#fff;
 overflow:hidden;
-transform:scale(2);
-transform-origin:top left;
-width:50%;
 }
 
+/* HEADER */
+
 #header{
-height:60px;
-line-height:60px;
+height:70px;
+line-height:70px;
 text-align:center;
-font-size:28px;
+font-size:34px;
 font-weight:700;
 background:#8b0000;
 color:#ffd700;
 }
 
+/* VÙNG CUỘN */
+
 #viewport{
-height:calc(200vh - 120px);
+height:calc(100vh - 70px);
 overflow:auto;
-padding:10px;
+padding:15px;
 }
 
+/* TIÊU ĐỀ SECTION */
+
 .section{
-margin:25px 0 10px;
-padding:10px;
-font-size:24px;
+margin:30px 0 12px;
+padding:12px;
+font-size:28px;
 font-weight:700;
 background:#b22222;
 }
 
+/* BẢNG */
+
 table{
 width:100%;
 border-collapse:collapse;
-font-size:22px;
-margin-bottom:25px;
+font-size:26px;
+margin-bottom:35px;
 }
 
 th{
 background:#660000;
 color:#ffeb3b;
-padding:10px;
+padding:12px;
 text-align:left;
 }
 
 td{
-padding:10px;
+padding:12px;
 border-bottom:1px solid #444;
 }
 
-/* Tên công việc rộng hơn */
+/* CỘT TÊN CÔNG VIỆC RỘNG */
+
 #jobs th:nth-child(1),
 #jobs td:nth-child(1){
 width:35%;
 }
 
-/* trạng thái quá hạn */
+/* TRẠNG THÁI QUÁ HẠN */
+
 .status{
 color:#ff3333;
 font-weight:700;
 white-space:nowrap;
 }
 
+/* KHÔNG CÓ DỮ LIỆU */
+
 .no{
 text-align:center;
-padding:30px;
-font-size:22px;
+padding:35px;
+font-size:24px;
 color:#ccc;
 }
 
@@ -108,7 +117,7 @@ LỊCH HỌP HÔM NAY (<span id="today"></span>)
 <tbody></tbody>
 </table>
 
-<div style="height:300px"></div>
+<div style="height:200px"></div>
 
 </div>
 
@@ -162,7 +171,8 @@ if(!r||r.length<2)return
 
 let h=r[0]
 
-/* sửa tên cột Ký hiệu */
+/* đổi tên cột ký hiệu */
+
 h=h.map(x=>{
 if(x.toLowerCase().includes("ký hiệu")) return "Ký hiệu"
 return x
@@ -196,34 +206,32 @@ h.forEach((_,i)=>{
 
 let c=row[i]||""
 
-/* CVVP chỉ lấy tên */
+/* CVVP chỉ hiển thị tên */
+
 if(i==4 && c){
 let words=c.trim().split(" ")
 c=words[words.length-1]
 }
 
-/* thời hạn chỉ ngày tháng */
+/* thời hạn chỉ ngày/tháng */
+
 if(i==6 && c){
 let p=c.split("/")
 if(p.length==3) c=p[0]+"/"+p[1]
 }
 
 /* rút gọn chữ quá hạn */
+
 if(i==s){
 
 let text=c.toLowerCase()
 
-if(text.includes("quá")){
-c="Quá hạn"
-}
+if(text.includes("quá")) c="Quá hạn"
 
-if(text.includes("trễ")){
-c="Trễ"
-}
+if(text.includes("trễ")) c="Trễ"
 
-if(text.includes("quá") || text.includes("trễ")){
+if(text.includes("quá")||text.includes("trễ"))
 c=`<span class="status">${c}</span>`
-}
 
 }
 
